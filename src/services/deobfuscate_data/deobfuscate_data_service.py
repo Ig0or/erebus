@@ -1,3 +1,6 @@
+# Standard
+import json
+
 # Third Party
 from cryptography.fernet import Fernet
 from decouple import config
@@ -17,5 +20,8 @@ class DeobfuscateDataService:
     def deobfuscate_value(cls, value: bytes) -> str:
         deobfuscated_value = cls.__fernet_instance.decrypt(token=value)
         decoded_value = cls.__decode_value(value=deobfuscated_value)
+
+        if "order_id" in decoded_value:
+            decoded_value = json.loads(decoded_value)
 
         return decoded_value
