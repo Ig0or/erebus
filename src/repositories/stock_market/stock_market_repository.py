@@ -29,4 +29,3 @@ class StockMarketRepository:
         connection.update_one(filter=query_filter, update=updated_object)
 
         return
-

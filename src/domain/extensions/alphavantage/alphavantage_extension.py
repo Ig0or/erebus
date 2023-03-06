@@ -30,3 +30,7 @@ class AlphavantageExtension:
             symbols_model.append(symbol_model)
 
         return symbols_model
+
+    @classmethod
+    def to_symbol_price_model(cls, response: dict):
+        pass

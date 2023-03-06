@@ -15,3 +15,7 @@ class AlphavantageService:
         )
 
         return symbols_model
+
+    @staticmethod
+    async def symbol_price(symbol: str):
+        response = await AlphavantageTransport.symbol_price(symbol=symbol)
