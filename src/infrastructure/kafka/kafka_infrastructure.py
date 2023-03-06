@@ -17,6 +17,7 @@ class KafkaInfrastructure:
             consumer_config = {
                 "bootstrap_servers": config("KAFKA_URL"),
                 "client_id": config("KAFKA_CLIENT_ID"),
+                "group_id": config("KAFKA_GROUP_ID"),
                 "auto_offset_reset": "earliest",
                 "key_deserializer": DeobfuscateDataService.deobfuscate_value,
                 "value_deserializer": DeobfuscateDataService.deobfuscate_value,
