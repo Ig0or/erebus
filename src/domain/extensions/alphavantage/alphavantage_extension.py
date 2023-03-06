@@ -4,7 +4,7 @@ from src.domain.models.alphavantage.symbol_model import SymbolModel
 
 class AlphavantageExtension:
     @staticmethod
-    def __symbol_search_to_model(symbol_response: dict) -> SymbolModel:
+    def __to_symbol_search_model(symbol_response: dict) -> SymbolModel:
         symbol_model: SymbolModel = {
             "symbol": symbol_response.get("1. symbol", ""),
             "name": symbol_response.get("2. name", ""),
@@ -20,13 +20,13 @@ class AlphavantageExtension:
         return symbol_model
 
     @classmethod
-    def symbol_search_to_array_model(cls, response: dict) -> list[SymbolModel]:
+    def to_array_symbol_search_model(cls, response: dict) -> list[SymbolModel]:
         symbols_response = response.get("bestMatches", list())
 
         symbols_model = list()
 
         for symbol in symbols_response:
-            symbol_model = cls.__symbol_search_to_model(symbol_response=symbol)
+            symbol_model = cls.__to_symbol_search_model(symbol_response=symbol)
             symbols_model.append(symbol_model)
 
         return symbols_model
