@@ -1,19 +1,21 @@
+# Third Party
+from decouple import config
 import requests
 
 
 class AlphavantageTransport:
-    @staticmethod
-    async def ticker_search(symbol: str ):
-        api_response = requests.get(url="https://www.alphavantage.co/query", params={
+    __alphavantage_url = config("ALPHAVANTAGE_URL")
+    __alphavantage_api_key = config("ALPHAVANTAGE_API_KEY")
+
+    @classmethod
+    async def symbol_search(cls, symbol: str) -> dict:
+        params = {
             "function": "SYMBOL_SEARCH",
-            "keywords": "tesla",
-            "apikey": "",
-        })
+            "keywords": symbol,
+            "apikey": cls.__alphavantage_api_key,
+        }
 
-        print(api_response)
+        api_response = requests.get(url=cls.__alphavantage_url, params=params)
+        dict_response = api_response.json()
 
-import asyncio
-from requests import Response
-
-a = asyncio.get_event_loop()
-a.run_until_complete(AlphavantageTransport.ticker_search("petr4"))
+        return dict_response
