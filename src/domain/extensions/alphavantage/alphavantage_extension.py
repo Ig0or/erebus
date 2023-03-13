@@ -1,4 +1,5 @@
 # Local
+from src.domain.models.alphavantage.price_model import SymbolPriceModel
 from src.domain.models.alphavantage.symbol_model import SymbolModel
 
 
@@ -32,5 +33,19 @@ class AlphavantageExtension:
         return symbols_model
 
     @classmethod
-    def to_symbol_price_model(cls, response: dict):
-        pass
+    def to_symbol_price_model(cls, response: dict) -> SymbolPriceModel:
+        days_price = iter(response.get("Time Series (Daily)", dict()).values())
+        price_information = next(days_price, dict())
+
+        price_model: SymbolPriceModel = {
+            "open": float(price_information.get("1. open", 0)),
+            "high": float(price_information.get("2. high", 0)),
+            "low": float(price_information.get("3. low", 0)),
+            "close": float(price_information.get("4. close", 0)),
+            "adjusted_close": float(price_information.get("5. adjusted close", 0)),
+            "volume": int(price_information.get("6. volume", 0)),
+            "dividend_amount": float(price_information.get("7. dividend amount", 0)),
+            "split_coefficient": float(price_information.get("1. open", 0)),
+        }
+
+        return price_model

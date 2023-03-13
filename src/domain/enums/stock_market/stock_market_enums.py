@@ -9,4 +9,5 @@ class OrderStatusEnum(str, Enum):
 
 
 class OrderMessageEnum(str, Enum):
-    INVALID_SYMBOL = "This symbol doesn't exist"
+    INVALID_SYMBOL = "This symbol doesn't exist."
+    ORDER_PROCESSED = "The order was processed."
