@@ -5,16 +5,15 @@ from typing import NoReturn
 # Third Party
 from kafka.consumer.fetcher import ConsumerRecord
 
+# Local
 from src.domain.enums.stock_market.stock_market_enums import (
-    OrderStatusEnum,
     OrderMessageEnum,
+    OrderStatusEnum,
 )
 from src.domain.extensions.stock_market.order_extension import (
     StockMarketExtension,
 )
 from src.domain.models.stock_market.order_model import OrderModel
-
-# Local
 from src.repositories.stock_market.stock_market_repository import StockMarketRepository
 from src.services.alphavantage.alphavantage_service import AlphavantageService
 
@@ -29,17 +28,23 @@ class StockMarketService:
         order_model["order_status"] = status
         order_model["order_message"] = message
 
+        if order_model.get("unit_price"):
+            order_model["total_price"] = (
+                order_model["quantity"] * order_model["unit_price"]
+            )
+
         await StockMarketRepository.update_order_on_database(order_model=order_model)
 
         return
 
     @staticmethod
     async def __check_symbol_price(symbol: str) -> float:
-        # symbol_price =
-        pass
+        symbol_price_model = await AlphavantageService.symbol_price(symbol=symbol)
+
+        return symbol_price_model["close"]
 
     @staticmethod
-    async def __check_symbol_exist(symbol: str) -> str:
+    async def __check_symbol_exists(symbol: str) -> str:
         symbols_model = await AlphavantageService.symbol_search(symbol=symbol)
 
         if symbols_model:
@@ -47,14 +52,16 @@ class StockMarketService:
 
             return market_symbol
 
-    @classmethod
-    async def __process_order(cls, message: ConsumerRecord) -> NoReturn:
+    @staticmethod
+    async def __process_order(message: ConsumerRecord) -> NoReturn:
         order_model = StockMarketExtension.to_order_model(order=message.value)
 
-        market_symbol = await cls.__check_symbol_exist(symbol=order_model["symbol"])
+        market_symbol = await StockMarketService.__check_symbol_exists(
+            symbol=order_model["symbol"]
+        )
 
         if not market_symbol:
-            await cls.__update_order(
+            await StockMarketService.__update_order(
                 order_model=order_model,
                 status=OrderStatusEnum.CANCELLED,
                 message=OrderMessageEnum.INVALID_SYMBOL,
@@ -62,7 +69,20 @@ class StockMarketService:
 
             return
 
+        symbol_unit_price = await StockMarketService.__check_symbol_price(
+            symbol=market_symbol
+        )
+
         order_model["symbol"] = market_symbol
+        order_model["unit_price"] = symbol_unit_price
+
+        await StockMarketService.__update_order(
+            order_model=order_model,
+            status=OrderStatusEnum.FINISHED,
+            message=OrderMessageEnum.ORDER_PROCESSED,
+        )
+
+        return
 
     @classmethod
     async def start_consume(cls):
@@ -75,11 +95,3 @@ class StockMarketService:
                 continue
 
             sleep(cls.__time_to_sleep)
-
-        topic_consumer.commit()
-
-
-import asyncio
-
-a = asyncio.get_event_loop()
-a.run_until_complete(StockMarketService.start_consume())
