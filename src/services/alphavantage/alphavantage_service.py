@@ -1,4 +1,5 @@
 # Local
+from src.domain.models.alphavantage.price_model import SymbolPriceModel
 from src.domain.models.alphavantage.symbol_model import SymbolModel
 from src.domain.extensions.alphavantage.alphavantage_extension import (
     AlphavantageExtension,
@@ -17,5 +18,8 @@ class AlphavantageService:
         return symbols_model
 
     @staticmethod
-    async def symbol_price(symbol: str):
+    async def symbol_price(symbol: str) -> SymbolPriceModel:
         response = await AlphavantageTransport.symbol_price(symbol=symbol)
+        price_model = AlphavantageExtension.to_symbol_price_model(response=response)
+
+        return price_model

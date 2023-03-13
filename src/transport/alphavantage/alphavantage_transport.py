@@ -32,9 +32,3 @@ class AlphavantageTransport:
         dict_response = api_response.json()
 
         return dict_response
-
-
-import asyncio
-
-a = asyncio.get_event_loop()
-a.run_until_complete(AlphavantageTransport.symbol_price(symbol="petr4.sao"))
