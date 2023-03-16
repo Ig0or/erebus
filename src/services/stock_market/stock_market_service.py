@@ -1,5 +1,4 @@
 # Standard
-from time import sleep
 from typing import NoReturn
 
 # Third Party
@@ -19,8 +18,6 @@ from src.services.alphavantage.alphavantage_service import AlphavantageService
 
 
 class StockMarketService:
-    __time_to_sleep = 120
-
     @staticmethod
     async def __update_order(
         order_model: OrderModel, status: OrderStatusEnum, message: OrderMessageEnum
@@ -84,14 +81,9 @@ class StockMarketService:
 
         return
 
-    @classmethod
-    async def start_consume(cls):
+    @staticmethod
+    async def start_consume():
         topic_consumer = StockMarketRepository.subscribe_to_orders_topic()
 
         for message in topic_consumer:
-            if message:
-                await cls.__process_order(message=message)
-
-                continue
-
-            sleep(cls.__time_to_sleep)
+            await StockMarketService.__process_order(message=message)
