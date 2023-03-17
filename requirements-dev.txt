@@ -1,0 +1,2 @@
+-r requirements.txt
+pip-chill==1.0.1
