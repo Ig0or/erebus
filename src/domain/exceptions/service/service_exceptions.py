@@ -6,10 +6,15 @@ from src.domain.exceptions.base.base_exception import BaseErebusException
 
 
 class ServiceInvalidFernetKeyException(BaseErebusException):
-    def __init__(self, operation: str, exception: Exception):
+    def __init__(
+        self,
+        operation: str,
+        exception: Exception,
+        message: str = ErebusExceptionMessageEnum.service.INVALID_FERNET_KEY,
+    ):
         self.__operation = operation
         self.__exception = exception
-        self.__message = ErebusExceptionMessageEnum.service.INVALID_FERNET_KEY
+        self.__message = message
 
         super().__init__(
             operation=self.__operation,
