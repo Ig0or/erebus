@@ -1,5 +1,6 @@
 cryptography==39.0.2
 kafka-python==2.0.2
+loglifos==0.1.0
 pyfiglet==0.8.post1
 pymongo==4.3.3
 python-decouple==3.8
