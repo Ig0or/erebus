@@ -5,9 +5,13 @@ from typing import NoReturn
 # Third Party
 from decouple import config
 from pyfiglet import print_figlet
+import loglifos
 
 # Local
 from src.services.stock_market.stock_market_service import StockMarketService
+
+
+loglifos.set_config(log_level=loglifos.WARNING)
 
 
 def get_event_loop() -> AbstractEventLoop:
