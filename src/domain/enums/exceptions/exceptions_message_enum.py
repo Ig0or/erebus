@@ -7,6 +7,7 @@ class GeneralExceptionMessageEnum(str, Enum):
 
 
 class InfrastructureExceptionsMessageEnum(str, Enum):
+    CONNECTION_ERROR = "Error while connecting to the data base."
     NO_BROKERS_AVAILABLE = "Error while connecting to the kafka broker."
 
 
