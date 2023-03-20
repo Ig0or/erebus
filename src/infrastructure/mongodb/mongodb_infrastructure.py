@@ -2,6 +2,13 @@
 from decouple import config
 from pymongo import MongoClient
 from pymongo.collection import Collection
+from pymongo.errors import ConfigurationError
+
+# Local
+from src.domain.exceptions.infrastructure.infrastructure_exceptions import (
+    InfrastructureMongoConnectionErrorException,
+    InfrastructureUnexpectedException,
+)
 
 
 class MongoDBInfrastructure:
@@ -27,7 +34,18 @@ class MongoDBInfrastructure:
 
     @classmethod
     def get_connection(cls) -> Collection:
-        if cls.__connection is None:
-            cls.__connection = cls.__create_connection()
+        try:
+            if cls.__connection is None:
+                cls.__connection = cls.__create_connection()
 
-        return cls.__connection
+            return cls.__connection
+
+        except ConfigurationError as exception:
+            raise InfrastructureMongoConnectionErrorException(
+                operation="MongoDBInfrastructure::get_connection", exception=exception
+            )
+
+        except Exception as exception:
+            raise InfrastructureUnexpectedException(
+                operation="MongoDBInfrastructure::get_connection", exception=exception
+            )

@@ -3,12 +3,14 @@ from typing import NoReturn
 
 # Third Party
 from kafka.consumer.fetcher import ConsumerRecord
+import loglifos
 
 # Local
 from src.domain.enums.stock_market.stock_market_enums import (
     OrderMessageEnum,
     OrderStatusEnum,
 )
+from src.domain.exceptions.base.base_exception import BaseErebusException
 from src.domain.extensions.stock_market.order_extension import (
     StockMarketExtension,
 )
@@ -83,7 +85,15 @@ class StockMarketService:
 
     @staticmethod
     async def start_consume():
-        topic_consumer = StockMarketRepository.subscribe_to_orders_topic()
+        try:
+            topic_consumer = StockMarketRepository.subscribe_to_orders_topic()
 
-        for message in topic_consumer:
-            await StockMarketService.__process_order(message=message)
+            for message in topic_consumer:
+                await StockMarketService.__process_order(message=message)
+
+        except BaseErebusException as exception:
+            loglifos.error(
+                operation=exception.operation,
+                msg=exception.message,
+                exception=exception.exception,
+            )
