@@ -3,7 +3,7 @@ from enum import Enum
 
 
 class GeneralExceptionMessageEnum(str, Enum):
-    UNEXPECT_EXCEPTION = "An unexpect error occurred."
+    UNEXPECTED_EXCEPTION = "An unexpect error occurred."
 
 
 class InfrastructureExceptionsMessageEnum(str, Enum):
