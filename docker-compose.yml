@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+ mongodb:
+  image: "mongo:latest"
+  container_name: "mongodb"
+  restart: on-failure
+  networks:
+   - backend
+
+ zookeeper:
+  image: 'bitnami/zookeeper:latest'
+  container_name: "zookeeper"
+  restart: on-failure
+  ports:
+   - "2181:2811"
+  environment:
+   - ALLOW_ANONYMOUS_LOGIN=yes
+  networks:
+   - backend
+
+ kafka:
+  image: 'bitnami/kafka:latest'
+  container_name: "kafka"
+  restart: on-failure
+  ports:
+   - "9092:9092"
+  environment:
+   - KAFKA_BROKER_ID=1
+   - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+   - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+   - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+   - ALLOW_PLAINTEXT_LISTENER=YES
+  depends_on:
+   - zookeeper
+  healthcheck:
+   test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "kafka:9092", "--list"]
+   interval: 5s
+   timeout: 10s
+   retries: 5
+  networks:
+   - backend
+
+ nyx_producer:
+  image: "nyx_producer"
+  build:
+   context: "https://github.com/Ig0or/nyx.git#main"
+   dockerfile: Dockerfile
+  container_name: "nyx_producer"
+  ports:
+   - "8080:8080"
+  depends_on:
+   mongodb:
+    condition: service_started
+   kafka:
+    condition: service_healthy
+  environment:
+   - SERVER_PORT=8080
+   - KAFKA_URI=kafka
+   - KAFKA_CLIENT_ID=nyxProducer
+   - KAFKA_TOPIC_NAME=stockMarketOrders
+   - MONGO_HOST=mongodb
+   - MONGO_DATABASE=stock_market
+   - MONGO_COLLECTION=orders
+   - FERNET_KEY=2etNu_lojht_1nL0eILXABv_U_gi__fjqtupIrBEPUk=
+  networks:
+   - backend
+
+ erebus_consumer:
+  image: "erebus_consumer"
+  build:
+   context: "https://github.com/Ig0or/erebus.git#main"
+   dockerfile: Dockerfile
+  container_name: "erebus_consumer"
+  depends_on:
+   mongodb:
+    condition: service_started
+   kafka:
+    condition: service_healthy
+  environment:
+   - KAFKA_URI=kafka
+   - KAFKA_CLIENT_ID=erebusConsumer
+   - KAFKA_GROUP_ID=erebusConsumer
+   - KAFKA_TOPIC_NAME=stockMarketOrders
+   - MONGO_HOST=mongodb
+   - MONGO_DATABASE=stock_market
+   - MONGO_COLLECTION=orders
+   - FERNET_KEY=2etNu_lojht_1nL0eILXABv_U_gi__fjqtupIrBEPUk=
+   - ALPHAVANTAGE_URL=https://www.alphavantage.co/query
+   - ALPHAVANTAGE_API_KEY=XU2U9XU7T70FXDAZ
+  networks:
+   - backend
+
+networks:
+ backend:
