@@ -21,7 +21,7 @@ class KafkaInfrastructure:
         try:
             if cls.__consumer is None:
                 consumer_config = {
-                    "bootstrap_servers": config("KAFKA_URL"),
+                    "bootstrap_servers": config("KAFKA_URI"),
                     "client_id": config("KAFKA_CLIENT_ID"),
                     "group_id": config("KAFKA_GROUP_ID"),
                     "auto_offset_reset": "earliest",

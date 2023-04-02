@@ -5,13 +5,9 @@ from typing import NoReturn
 # Third Party
 from decouple import config
 from pyfiglet import print_figlet
-import loglifos
 
 # Local
 from src.services.stock_market.stock_market_service import StockMarketService
-
-
-loglifos.set_config(log_level=loglifos.WARNING)
 
 
 def get_event_loop() -> AbstractEventLoop:
@@ -24,11 +20,11 @@ def get_event_loop() -> AbstractEventLoop:
 def print_consumer_name() -> NoReturn:
     print_figlet(text="Erebus", colors="30;37;235")
 
-    kafka_url = config("KAFKA_URL")
+    kafka_uri = config("KAFKA_URI")
     kafka_topic = config("KAFKA_TOPIC_NAME")
 
     print("**********************************************************************")
-    print(f"Starting consuming from URL: {kafka_url} - TOPIC: {kafka_topic}")
+    print(f"Starting consuming from URI: {kafka_uri} - TOPIC: {kafka_topic}")
     print("**********************************************************************")
 
     return
